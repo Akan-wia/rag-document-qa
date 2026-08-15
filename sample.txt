@@ -1,0 +1,12 @@
+TechCorp Flexible Work and Office Policy
+
+TechCorp believes in giving employees the flexibility to balance their work and personal lives effectively. This policy outlines our guidelines regarding remote work, core hours, and home office setups.
+
+1. Remote Work Guidelines
+Employees are permitted to work remotely up to three days per week, subject to manager approval and team requirements. Core team collaboration days must be respected, during which team members may be asked to be present in the physical office. All employees working remotely must ensure they have a secure, private internet connection and a distraction-free workspace.
+
+2. Core Working Hours and Communication
+To ensure seamless collaboration across different time zones, TechCorp establishes core working hours between 10:00 AM and 3:00 PM local time. During these hours, team members are expected to be reachable via Slack or email. Urgent queries should be escalated through direct messaging rather than asynchronous task management boards.
+
+3. Equipment and Home Office Stipend
+Every full-time employee is eligible for a one-time annual home office stipend of $500 to purchase ergonomic furniture, monitors, or essential peripheral devices. Company-issued laptops must remain secure and should not be used for unauthorized commercial activities. Any hardware issues must be reported to the IT helpdesk immediately through the internal ticketing portal.

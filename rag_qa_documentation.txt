@@ -1,0 +1,100 @@
+# RAG Document Q&A Application: Full Documentation
+
+## 1. Project Overview
+The RAG Document Q&A Application is a lightweight, full-stack Retrieval-Augmented Generation (RAG) system. It allows users to query proprietary text documents interactively through a web UI. By combining local vector search with a cloud-based Large Language Model (Google Gemini), the system grounds responses in verified context to eliminate hallucinations and ensure factual accuracy.
+
+---
+
+## 2. System Architecture & Workflow
+The application follows a modular client-server architecture:
+1. Ingestion Layer: Raw text files are loaded, split into semantic chunks, converted into vector embeddings, and stored persistently in a local vector database (ChromaDB).
+2. Retrieval Layer: When a user submits a question, the system queries ChromaDB to perform a semantic similarity search, pulling the most relevant document chunks.
+3. Generation Layer: The retrieved chunks are injected into a strict prompt template alongside the user query and sent to the Google Gemini API to synthesize a precise answer.
+4. Backend API Layer: A FastAPI application wraps the RAG logic into a RESTful endpoint (/ask), validating payloads with Pydantic models.
+5. Frontend Layer: A Streamlit web application provides an intuitive chat interface that communicates asynchronously with the FastAPI backend.
+6. Containerization Layer: Docker and Docker Compose package the backend and frontend into isolated, portable containers sharing persistent storage.
+
+---
+
+## 3. Project File Structure
+rag-document-qa/
+│
+├── chroma_db/                # Persistent vector database storage directory
+├── venv/                     # Python virtual environment
+├── sample.txt                # Source document containing knowledge base rules
+├── ingest.py                 # Document ingestion and vector embedding script
+├── query.py                  # Standalone retrieval testing script
+├── generate.py               # Standalone RAG generation test script
+├── main.py                   # FastAPI backend application
+├── app.py                    # Streamlit frontend user interface
+├── requirements.txt          # Project Python dependencies
+├── Dockerfile.backend        # Dockerfile for the FastAPI backend service
+├── Dockerfile.frontend       # Dockerfile for the Streamlit frontend service
+└── docker-compose.yml        # Orchestration file for multi-container deployment
+
+---
+
+## 4. Core Component Breakdown
+
+### A. Ingestion (ingest.py)
+- Connects to ChromaDB using a persistent client (chromadb.PersistentClient).
+- Creates or loads a collection named 'rag_docs'.
+- Reads source documents (such as sample.txt), splits text into manageable blocks, embeds them, and indexes them for vector similarity matching.
+
+### B. Retrieval Testing (query.py)
+- Serves as a standalone debugging utility.
+- Queries the ChromaDB collection using natural language text to inspect distance scores and verify that semantic search correctly identifies relevant document snippets before invoking the LLM.
+
+### C. Generation Pipeline (generate.py)
+- Coordinates retrieval and text generation.
+- Fetches top matching context chunks from ChromaDB.
+- Constructs a strict system prompt instructing Gemini to rely ONLY on the provided context.
+- Calls the Google Gemini API (gemini-3.6-flash) to generate the final response.
+
+### D. Backend API (main.py)
+- Built with FastAPI to expose HTTP endpoints.
+- Defines a Pydantic schema (QueryRequest) to enforce strict payload validation for incoming questions.
+- Exposes a POST /ask endpoint that executes the complete retrieval-and-generation pipeline and returns structured JSON containing the query and synthesized answer.
+
+### E. Frontend User Interface (app.py)
+- Built with Streamlit to offer a responsive web interface (http://localhost:8501).
+- Captures user input via a text field and sends asynchronous HTTP requests to the FastAPI backend (http://127.0.0.1:8000/ask).
+- Displays loading spinners, success states, and formatted Markdown answers.
+
+### F. Containerization (Dockerfile.backend, Dockerfile.frontend, docker-compose.yml)
+- Backend Dockerfile: Sets up a Python 3.10 slim environment, installs dependencies, copies code, and starts Uvicorn on port 8000.
+- Frontend Dockerfile: Configures the Streamlit container to run on port 8501 and interface with the backend service.
+- Docker Compose: Manages multi-container networking, maps ports, securely passes the GEMINI_API_KEY environment variable, and mounts the ./chroma_db volume for persistent database storage.
+
+---
+
+## 5. Local Setup and Execution Guide
+
+### Prerequisites
+- Python 3.10+ installed.
+- Docker Desktop installed and running.
+- A valid Google Gemini API Key.
+
+### Step 1: Environment Setup
+Clone or open the project folder and create an active virtual environment:
+  python -m venv venv
+  .\venv\Scripts\Activate
+
+### Step 2: Install Dependencies
+  python -m pip install fastapi uvicorn streamlit requests chromadb google-genai
+
+### Step 3: Run the FastAPI Backend
+Start the local server using Uvicorn:
+  uvicorn main:app --reload
+- Interactive API Documentation is available at http://127.0.0.1:8000/docs.
+
+### Step 4: Run the Streamlit Frontend
+Open a second terminal window, activate the virtual environment, and launch Streamlit:
+  .\venv\Scripts\Activate
+  streamlit run app.py
+- Access the web UI at http://localhost:8501.
+
+### Step 5: Run via Docker Compose (Alternative)
+To spin up the entire application inside Docker containers:
+  $env:GEMINI_API_KEY="your_actual_api_key_here"
+  docker compose up --build
